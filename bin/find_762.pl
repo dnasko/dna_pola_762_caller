@@ -126,6 +126,6 @@ while( my $seq = $seq_in->next_seq() ) {
 print "Done Mega MAFFT: ";
 print `date`;
 
-# print `rm -rf $working_dir`;
+print `rm -rf $working_dir`;
 
 exit 0;
