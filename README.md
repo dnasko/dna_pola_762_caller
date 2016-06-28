@@ -2,7 +2,7 @@
 
 Welcome to the viral DNA Polymerase A *E. coli* 762 caller.
 
-This program was inspired by [Schmidt et al. Shotgun metagenomics indicates novel family A DNA polymerases predominate within marine virioplankton](http://www.nature.com/ismej/journal/v8/n1/full/ismej2013124a.html).
+This program was inspired by Schmidt et al. [Shotgun metagenomics indicates novel family A DNA polymerases predominate within marine virioplankton](http://www.nature.com/ismej/journal/v8/n1/full/ismej2013124a.html).
 
 Details of how this works
 -------------------------
