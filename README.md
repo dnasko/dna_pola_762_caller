@@ -33,7 +33,7 @@ The 762_caller will output a 6 column tab-delimmited text file with one row of r
 Post-processing
 ---------------
 
-Once you have your output from the 762_caller you can use trim_sequences.pl in the scripts directory to trim your sequences to the 547 -> 926 region, as well as filter out any sequences that don't span this region end-to-end.
+Once you have your output from the 762_caller you can use trim_sequences.pl in the [scripts directory](https://github.com/dnasko/dna_pola_762_caller/tree/master/scripts) to trim your sequences to the 547 -> 926 region, as well as filter out any sequences that don't span this region end-to-end.
 
 Acknowledgements
 ----------------
