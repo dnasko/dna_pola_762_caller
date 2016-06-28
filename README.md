@@ -17,17 +17,23 @@ It has been demonstrated that a leucine substitution at position 762 leads to a 
 Usage
 -----
 
-> ./bin/find_762.pl --help
+> ./762_caller.pl --help
 
-Given an input FASTA of viral DNA polymerase A peptides the 762-caller will perform iterative multiple sequence alignments (MSA) using [MAFFT](http://mafft.cbrc.jp/alignment/software/) against a set of reference sequences; cheif amung them *E. coli*.
+Given an input FASTA of viral DNA polymerase A peptides the 762_caller will perform iterative multiple sequence alignments (MSA) using [MAFFT](http://mafft.cbrc.jp/alignment/software/) against a set of reference sequences; cheif amung them *E. coli*.
 
-The 762-caller will output a 5 column tab-delimmited text file with one row of results for each input sequence, each of the 5 fields are detailed below:
+The 762_caller will output a 6 column tab-delimmited text file with one row of results for each input sequence, each of the 6 fields are detailed below:
 
 1. Sequence ID
 2. 762 Position relative to this sequence
 3. Residue at this sequence's 762
 4. 547 Position relative to this sequence
 5. 926 Position relative to this sequence
+6. Does the sequence span the 547 - 926 trimming regions
+
+Post-processing
+---------------
+
+Once you have your output from the 762_caller you can use trim_sequences.pl in the scripts directory to trim your sequences to the 547 -> 926 region, as well as filter out any sequences that don't span this region end-to-end.
 
 Acknowledgements
 ----------------

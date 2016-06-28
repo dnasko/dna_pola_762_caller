@@ -195,11 +195,11 @@ sub parse_762
 		    $pos926++;
 		}
 	    }
-	    unless ($pos762 == 0) { $residue = $A[$r762]; }
-	    unless ($pos547==0 && $pos926 == $qlen) { $complete = "yes"; }
 	    my $seq = $_;
 	    $seq =~ s/-//g;
 	    $qlen = length($seq);
+	    unless ($pos762 == 0) { $residue = $A[$r762]; }
+	    if ($pos547 != 0 && $pos926 != $qlen) { $complete = "yes"; }
 	}
 	$l++;
     }
