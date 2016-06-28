@@ -19,7 +19,7 @@ Usage
 
 > ./762_caller.pl --help
 
-Given an input FASTA of viral DNA polymerase A peptides the 762_caller will perform iterative multiple sequence alignments (MSA) using [MAFFT](http://mafft.cbrc.jp/alignment/software/) against a set of reference sequences; cheif amung them *E. coli*.
+Given an input FASTA of viral DNA polymerase A peptides the 762_caller will perform iterative multiple sequence alignments (MSA) using [MAFFT](http://mafft.cbrc.jp/alignment/software/) against a set of reference sequences; chief among them *E. coli*. **NOTE: You must have MAFFT installed and included in your PATH for 762_caller to work**.
 
 The 762_caller will output a 6 column tab-delimmited text file with one row of results for each input sequence, each of the 6 fields are detailed below:
 
