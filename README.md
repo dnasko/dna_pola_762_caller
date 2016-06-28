@@ -1,6 +1,8 @@
 ![Alt text](https://github.com/dnasko/dna_pola_762_caller/blob/master/images/logo.png "762!")
 
-Find the PolA 762 position for a set of sequences.
+Welcome to the viral DNA Polymerase A *E. coli* 762 caller.
+
+This program was inspired by [Schmidt et al. Shotgun metagenomics indicates novel family A DNA polymerases predominate within marine virioplankton](http://www.nature.com/ismej/journal/v8/n1/full/ismej2013124a.html).
 
 Details of how this works
 -------------------------
