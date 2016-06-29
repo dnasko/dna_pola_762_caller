@@ -140,7 +140,8 @@ while( my $seq = $seq_in->next_seq() ) {
     open(TMP,">$working_dir/query_and_ref_tmp.fa") || die "Can't open the temporary FSA: $working_dir/query_and_ref_tmp.fa\n\n";
     print TMP $References . ">" . $seq->id . "\n" . $seq->seq . "\n";
     close(TMP);
-    print `mafft --retree 2 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
+    # print `mafft --retree 2 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`; ## Default MAFFT run, not local or global
+    print `mafft --localpair  --maxiterate 16 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
     flaten_fasta("$working_dir/aln.fa", "$working_dir/aln.flt.fa");
     my @results = parse_762("$working_dir/aln.flt.fa", $nrefs);
     print OUT join ("\t", @results) . "\n";
