@@ -14,6 +14,13 @@ In short, the study concluded that when aligning viral DNA polymerase A proteins
 
 It has been demonstrated that a leucine substitution at position 762 leads to a slower, but higher fidelity, DNA polymerase.
 
+Download / Installation
+-----------------------
+
+Just clone this repository and be sure to have [MAFFT](http://mafft.cbrc.jp/alignment/software/) installed and inlcuded in your PATH.
+
+> git clone git@github.com:dnasko/dna_pola_762_caller.git
+
 Usage
 -----
 
