@@ -1,23 +1,27 @@
 #!/usr/bin/perl -w
 
-# MANUAL FOR find_762.pl
+# MANUAL FOR ecoli_related_info.pl
 
 =pod
 
 =head1 NAME
 
-762_caller.pl -- Iteratively runs MAFFT alignments against a set of references to determine DNA polymerase A 762 calls.
+ecoli_related_info.pl -- Iteratively runs MAFFT alignments against a set of references to determine E. coli DNA polymerase A information.
 
 =head1 SYNOPSIS
 
- 762_caller.pl --in=/Path/to/infile.fasta --ref=/Path/to/references.fasta --out=/Path/to/output.txt
+ ecoli_related_info.pl --in=/Path/to/infile.fasta --ref=/Path/to/references.fasta --out=/Path/to/output.txt
                      [--debug] [--help] [--manual]
 
 =head1 DESCRIPTION
 
  This script runs a MAFFT alignment for each sequence in your input.fasta
- file against all of the reference sequecnes in references.fasta.
+ file against all of the reference sequecnes in references.fasta. It's built
+ on the framework of the 762_caller, but is sort of an ad hoc script for
+ advanced development.
  
+ Right now it will print out two columns: SeqID, Ecoli-Start
+
 =head1 OPTIONS
 
 =over 3
@@ -85,7 +89,7 @@ use Bio::SeqIO;
 
 #ARGUMENTS WITH NO DEFAULT
 my($infile,$ref,$outfile,$help,$manual,$debug);
-my $version = "2.0";
+my $version = "1.0";
 GetOptions (
                            "i|in=s"   =>\$infile,
                            "r|ref=s"  =>\$ref,
@@ -116,7 +120,7 @@ print `mkdir -p $working_dir`;
 ## Begin ##
 ###########
 my $date = `date`;
-print " 762-Caller Version: $version\n Beginning: $date";
+print " E. coli Related Info Version: $version\n Beginning: $date";
 
 ## Read the references file into the scalar "References"
 ## I know, it seems crude, but it'll get the job done.
@@ -135,7 +139,7 @@ my $seq_in  = Bio::SeqIO->new(
     -file   => $infile );
 
 open(OUT,">$outfile") || die "\n Cannot write to the output file: $outfile\n";
-print OUT "sequence\t762_residue\tpos-762\tpos-547\tpos-850\tcomplete?\n";
+print OUT "sequence\tEcoli_start\n";
 while( my $seq = $seq_in->next_seq() ) {
     open(TMP,">$working_dir/query_and_ref_tmp.fa") || die "Can't open the temporary FSA: $working_dir/query_and_ref_tmp.fa\n\n";
     print TMP $References . ">" . $seq->id . "\n" . $seq->seq . "\n";
@@ -143,7 +147,7 @@ while( my $seq = $seq_in->next_seq() ) {
     # print `mafft --retree 2 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`; ## Default MAFFT run, not local or global
     print `mafft --localpair  --maxiterate 16 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
     flaten_fasta("$working_dir/aln.fa", "$working_dir/aln.flt.fa");
-    my @results = parse_762("$working_dir/aln.flt.fa", $nrefs);
+    my @results = additional_info("$working_dir/aln.flt.fa", $nrefs);
     print OUT join ("\t", @results) . "\n";
 }
 close(OUT);
@@ -158,54 +162,43 @@ $date = `date`;
 print " Done: $date";
 
 ## Subroutines
-sub parse_762
+sub additional_info
 {
     my $in = $_[0];
     my $query = $_[1] * 2;
     my @results;
     my $l=0;
-    my ($header, $residue, $pos762, $pos547, $pos850, $complete) = ("","none",0,0,0,"no");
-    my ($r547, $r762, $r850);
-    my $pos=0;
-    my $qlen;
+    my ($ecoli,$query_seq);
+    my ($query_pos,$ecoli_pos);
+    my $header;
     open(IN,"<$in") || die "\n Cannot open the file: $in\n";
     while(<IN>) {
 	chomp;
 	if ($l == 1) { # if on the E. coli sequence line...
-	    my @A = split(//, $_);
-	    for(my $i=0;$i<scalar(@A); $i++) {
-		unless ($A[$i] eq "-") {
-		    $pos++;
-		    if ($pos == 547) { $r547 = $i; }
-		    if ($pos == 762) { $r762 = $i; }
-		    if ($pos == 850) { $r850 = $i; }
-		}
-	    }
+	    $ecoli = $_;
 	}
 	elsif ($l == $query) {
 	    $header = $_;
 	    $header =~ s/^>//;
 	}
 	elsif ($l == $query+1) { # if on the query sequence line...
-	    my @A = split(//, $_);
-	    my $local_pos = 0;
-	    for(my $i=0;$i<=$r850; $i++) {
-		unless ($A[$i] eq "-") {
-		    if ($i<=$r547) { $pos547++; }
-		    if ($i<=$r762) { $pos762++; }
-		    $pos850++;
-		}
-	    }
-	    my $seq = $_;
-	    $seq =~ s/-//g;
-	    $qlen = length($seq);
-	    unless ($pos762 == 0) { $residue = $A[$r762]; }
-	    if ($pos547 != 0 && $pos850 != $qlen) { $complete = "yes"; }
+	    $query_seq = $_;
 	}
 	$l++;
     }
     close(IN);
-    @results = ($header, $residue, $pos762, $pos547, $pos850, $complete);
+    my @A = split(//, $query_seq);
+    for (my $i=0; $i<scalar(@A); $i++) {
+	if ($A[$i] ne "-") {
+	    $query_pos = $i;
+	    last;
+	}
+    }
+    @A = split(//, $ecoli);
+    for (my $i=0; $i<=$query_pos; $i++) {
+	unless ($A[$i] eq "-") { $ecoli_pos++; }
+    }
+    @results = ($header, $ecoli_pos);
     return (@results);
 }
 sub flaten_fasta

@@ -135,7 +135,7 @@ my $seq_in  = Bio::SeqIO->new(
     -file   => $infile );
 
 open(OUT,">$outfile") || die "\n Cannot write to the output file: $outfile\n";
-print OUT "sequence\t762_residue\tpos-762\tpos-547\tpos-850\tcomplete?\n";
+print OUT "sequence\t762_residue\tpos-762\tpos-547\tpos-926\tcomplete?\n";
 while( my $seq = $seq_in->next_seq() ) {
     open(TMP,">$working_dir/query_and_ref_tmp.fa") || die "Can't open the temporary FSA: $working_dir/query_and_ref_tmp.fa\n\n";
     print TMP $References . ">" . $seq->id . "\n" . $seq->seq . "\n";
@@ -164,8 +164,8 @@ sub parse_762
     my $query = $_[1] * 2;
     my @results;
     my $l=0;
-    my ($header, $residue, $pos762, $pos547, $pos850, $complete) = ("","none",0,0,0,"no");
-    my ($r547, $r762, $r850);
+    my ($header, $residue, $pos762, $pos547, $pos926, $complete) = ("","none",0,0,0,"no");
+    my ($r547, $r762, $r926);
     my $pos=0;
     my $qlen;
     open(IN,"<$in") || die "\n Cannot open the file: $in\n";
@@ -178,7 +178,7 @@ sub parse_762
 		    $pos++;
 		    if ($pos == 547) { $r547 = $i; }
 		    if ($pos == 762) { $r762 = $i; }
-		    if ($pos == 850) { $r850 = $i; }
+		    if ($pos == 926) { $r926 = $i; }
 		}
 	    }
 	}
@@ -189,23 +189,23 @@ sub parse_762
 	elsif ($l == $query+1) { # if on the query sequence line...
 	    my @A = split(//, $_);
 	    my $local_pos = 0;
-	    for(my $i=0;$i<=$r850; $i++) {
+	    for(my $i=0;$i<=$r926; $i++) {
 		unless ($A[$i] eq "-") {
 		    if ($i<=$r547) { $pos547++; }
 		    if ($i<=$r762) { $pos762++; }
-		    $pos850++;
+		    $pos926++;
 		}
 	    }
 	    my $seq = $_;
 	    $seq =~ s/-//g;
 	    $qlen = length($seq);
 	    unless ($pos762 == 0) { $residue = $A[$r762]; }
-	    if ($pos547 != 0 && $pos850 != $qlen) { $complete = "yes"; }
+	    if ($pos547 != 0 && $pos926 != $qlen) { $complete = "yes"; }
 	}
 	$l++;
     }
     close(IN);
-    @results = ($header, $residue, $pos762, $pos547, $pos850, $complete);
+    @results = ($header, $residue, $pos762, $pos547, $pos926, $complete);
     return (@results);
 }
 sub flaten_fasta
