@@ -169,7 +169,7 @@ sub additional_info
     my @results;
     my $l=0;
     my ($ecoli,$query_seq);
-    my ($query_pos,$ecoli_pos);
+    my ($query_pos,$ecoli_pos) = (0,0);
     my $header;
     open(IN,"<$in") || die "\n Cannot open the file: $in\n";
     while(<IN>) {
