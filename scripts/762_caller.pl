@@ -105,15 +105,15 @@ pod2usage( -msg  => "\n\n ERROR!  Required argument --ref not found.\n\n", -exit
 my $MAFFT = `which mafft`;
 unless ($MAFFT =~ m/mafft/) { die "\n Error! You need to make sure MAFFT is installed and included in your PATH before you can run this program...\n\n"; }
 
+## Check that the input is peptide and NOT nucleotide
+check_molecule($infile);
+
 ## Create the temporary working directory.
 my @chars = ("A".."Z", "a".."z");
 my $rand_string;
 $rand_string .= $chars[rand @chars] for 1..8;
 my $working_dir = "./762_caller_tmp_" . $rand_string;
 print `mkdir -p $working_dir`;
-
-## Check that the input is peptide and NOT nucleotide
-check_molecule($infile);
 
 ###########
 ## Begin ##
