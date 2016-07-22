@@ -6,7 +6,7 @@
 
 =head1 NAME
 
-762_caller.pl -- Iteratively runs MAFFT alignments against a set of references to determine DNA polymerase A 762 calls.
+762_caller.pl -- Iteratively runs MAFFT peptide alignments against a set of references to determine DNA polymerase A 762 calls.
 
 =head1 SYNOPSIS
 
@@ -24,7 +24,7 @@
 
 =item B<-i, --in>=FILENAME
 
-Input file in peptide FASTA format. (Required) 
+Input file in *peptide* FASTA format. (Required) 
 
 =item B<-r, --ref>=FILENAME
 
@@ -111,6 +111,9 @@ my $rand_string;
 $rand_string .= $chars[rand @chars] for 1..8;
 my $working_dir = "./762_caller_tmp_" . $rand_string;
 print `mkdir -p $working_dir`;
+
+## Check that the input is peptide and NOT nucleotide
+check_molecule($infile);
 
 ###########
 ## Begin ##
@@ -231,6 +234,27 @@ sub flaten_fasta
     close(IN);
     print OUTPUT "\n";
     close(OUTPUT);
+}
+sub check_molecule
+{
+    my $i = $_[0];
+    my $bases=0;
+    my $ATGC=0;
+    open(CHECK, "<$i") || die "\n Error: Cannot open the infile: $i\n";
+    while(<CHECK>) {
+	chomp;
+	unless ($_ =~ m/^>/) {
+	    $bases += length($_);
+	    my $seq = $_;
+	    $ATGC += $seq =~ tr/ATGCatgc/ATGCATGC/;
+	}
+    }
+    close(CHECK);
+    my $fraction = $ATGC / $bases;
+    if ($fraction > 0.5) {
+	$fraction *= 100;
+	die "\n\n ERROR: Looks like you have submitted a nucleotide FASTA file and not a peptide FASTA file. Remember that the 762_caller needs peptide sequences to make the 762 call. I'm assuming this is a nucleotide FASTA file becasue $fraction % of the bases in this file are either A, T, G, or C...\n\n In the event that this is not correct email Dan (dnasko 'at' udel 'dot' edu) and let him know\n\n";
+    }
 }
 
 exit 0;
