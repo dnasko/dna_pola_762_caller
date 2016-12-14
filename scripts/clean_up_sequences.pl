@@ -143,7 +143,10 @@ while( my $seq = $seq_in->next_seq() ) {
 	    my $right = $Coords{$header}{"stop"} - $Coords{$header}{"start"};
 	    my $trim_seq = substr $sequence, $left, $right;
 	    if ($trim) {
-		print OUT ">" . $header . "\n" . $trim_seq . "\n";
+		if (length($trim_seq) == 0) { print STDERR " WARNING: $header was trimmed away completely, has length 0 and will not be printed...\n"; }
+		else {
+		    print OUT ">" . $header . "\n" . $trim_seq . "\n";
+		}
 	    }
 	    else {
 		print OUT ">" . $header . "\n" . $seq->seq . "\n";
