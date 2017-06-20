@@ -81,7 +81,6 @@ use Getopt::Long;
 use File::Basename;
 use Pod::Usage;
 use FindBin;
-use Bio::SeqIO;
 
 #ARGUMENTS WITH NO DEFAULT
 my($infile,$ref,$outfile,$help,$manual,$debug);
@@ -132,16 +131,19 @@ while(<IN>) {
 }
 close(IN);
 
-## Start looping through the query file
-my $seq_in  = Bio::SeqIO->new(
-    -format => 'fasta',
-    -file   => $infile );
+## Read the FASTA into memory...
+my %Fasta = ReadFasta($infile);
+my @Order = FastaOrder($infile);
+
+
 
 open(OUT,">$outfile") || die "\n Cannot write to the output file: $outfile\n";
 print OUT "sequence\t762_residue\tpos-762\tpos-547\tpos-850\tcomplete?\n";
-while( my $seq = $seq_in->next_seq() ) {
+foreach my $header (@Order) {
+    unless (exists $Fasta{$header}) { die "\n Missing sequence: $header\n\n"; }
+    my $sequence = $Fasta{$header};
     open(TMP,">$working_dir/query_and_ref_tmp.fa") || die "Can't open the temporary FSA: $working_dir/query_and_ref_tmp.fa\n\n";
-    print TMP $References . ">" . $seq->id . "\n" . $seq->seq . "\n";
+    print TMP $References . ">" . $header . "\n" . $sequence . "\n";
     close(TMP);
     # print `mafft --retree 2 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`; ## Default MAFFT run, not local or global
     print `mafft --localpair  --maxiterate 16 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
@@ -161,6 +163,44 @@ $date = `date`;
 print " Done: $date";
 
 ## Subroutines
+sub ReadFasta
+{
+    my $file = $_[0];
+    $/=">";
+    my %NTs;
+    my @FILE;
+    open(FASTA,"<$file") or die "\n\n\n Nada $file\n\n\n";
+    @FILE=<FASTA>;
+    close(FASTA);
+    shift(@FILE);
+    foreach my $orf (@FILE)
+    {       my @Lines = split(/\n/,$orf);
+	    my $name = $Lines[0];
+	    my $seq = "";
+	    foreach my $i (1..$#Lines)
+	    {       $seq .= $Lines[$i]; }
+	    $seq =~ s/>//;
+	    $NTs{$name} = $seq;
+    }
+    $/="\n"; # reset input break character
+    return %NTs;
+}
+sub FastaOrder
+{
+    my $file = $_[0];
+    my @a;
+    open(IN,"<$file") || die "\n Cannot open the file: $file\n";
+    while(<IN>) {
+	chomp;
+	if ($_ =~ m/^>/) {
+	    my $h = $_;
+	    $h =~ s/^>//;
+	    push(@a, $h);
+	}
+    }
+    close(IN);
+    return @a;
+}
 sub parse_762
 {
     my $in = $_[0];
