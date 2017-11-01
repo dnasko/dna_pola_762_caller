@@ -73,7 +73,7 @@ LOG="${LOG}/mine_polas.log"
 
 echo -n "# Building a BLASTp database of the query file ......" | tee -a ${LOG}
 if [ -f "${QUERY}.phr" ]; then
-
+    sleep 0
 else
     makeblastdb -in ${QUERY} -dbtype prot
     status=$?
