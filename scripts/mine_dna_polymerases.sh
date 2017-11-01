@@ -3,7 +3,7 @@ set -e
 
 usage() {
     echo; echo "Usage: $0 --query=/Path/to/infile.fasta --database=/Path/to/PolA_DB --out=/Path/to/output.fasta [--threads=4]"
-    echo "  --fasta     Path to the input AA FASTA file"
+    echo "  --query     Path to the input query AA FASTA file"
     echo "  --out       Path to the output AA FASTA file"
     echo "  --database  Path to the PolA database FASTA file"
     echo "  --threads   Number of threads to use (Default=1)"
@@ -29,9 +29,9 @@ do
     --help|-h)
 	    usage
 	    exit;;
-    --fasta=?*)
-	    FASTA=${1#*=};;
-    --fasta|fasta=)
+    --query=?*)
+	    QUERY=${1#*=};;
+    --query|query=)
 	    echo "$0: missing argument for '$1' option"
 	    usage
 	    exit 1;;
@@ -72,17 +72,17 @@ LOG="$( cd "$( dirname "${OUT}" )" && pwd )"
 LOG="${LOG}/mine_polas.log"
 
 echo -n "# Building a BLASTp database of the query file ......" | tee -a ${LOG}
-if [ -f "${FASTA}.phr" ]; then
+if [ -f "${QUERY}.phr" ]; then
 
 else
-    makeblastdb -in ${FASTA} -dbtype prot
+    makeblastdb -in ${QUERY} -dbtype prot
     status=$?
 fi
 echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 
 echo -n "# BLASTp search for candidiate PolA sequences ......." | tee -a ${LOG}
 blastp -query "${DATABASE}" \
-       -db "${FASTA}" \
+       -db "${QUERY}" \
        -out "${OUT}.btab" \
        -num_threads "${THREADS}" \
        -evalue 1e-5 \
@@ -94,7 +94,7 @@ echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 echo -n "# Extracting candidate PolA sequences ..............." | tee -a ${LOG}
 cut -f2 "${OUT}.btab" | sort -u > "${OUT}_candidate_pola.lookup"
 status=$?
-extract_reads -f "${OUT}_candidate_pola.lookup" < "${FASTA}" > "${OUT}_candidate_pola.fasta"
+extract_reads -f "${OUT}_candidate_pola.lookup" < "${QUERY}" > "${OUT}_candidate_pola.fasta"
 status=$?
 echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 
