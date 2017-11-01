@@ -10,7 +10,7 @@
 
 =head1 SYNOPSIS
 
- 762_caller.pl --in=/Path/to/infile.fasta --ref=/Path/to/references.fasta --out=/Path/to/output.txt
+ 762_caller.pl --in=/Path/to/infile.fasta --ref=/Path/to/references.fasta --out=/Path/to/output.txt [--fast]
                      [--debug] [--help] [--manual]
 
 =head1 DESCRIPTION
@@ -33,6 +33,10 @@ Input set of peptide reference sequecnes. Use the 3_references.fasta file locate
 =item B<-o, --out>=FILENAME
 
 Output file in text format. (Required) 
+
+=item B<-f, --fast>
+
+Run in fast mode. Less accurate, but much faster. Uses --retree 2 option. (Default: run slow)
 
 =item B<-d, --debug>
 
@@ -81,14 +85,16 @@ use Getopt::Long;
 use File::Basename;
 use Pod::Usage;
 use FindBin;
+use Cwd 'abs_path';
 
 #ARGUMENTS WITH NO DEFAULT
-my($infile,$ref,$outfile,$help,$manual,$debug);
+my($infile,$ref,$outfile,$fast,$help,$manual,$debug);
 my $version = "2.0";
 GetOptions (
                            "i|in=s"   =>\$infile,
                            "r|ref=s"  =>\$ref,
                            "o|out=s"  =>\$outfile,
+                           "f|fast"   =>\$fast,
                            "h|help"   =>\$help,
                            "m|manual" =>\$manual,
                            "d|debug"  =>\$debug);
@@ -103,6 +109,17 @@ pod2usage( -msg  => "\n\n ERROR!  Required argument --ref not found.\n\n", -exit
 ## Check for MAFFT
 my $MAFFT = `which mafft`;
 unless ($MAFFT =~ m/mafft/) { die "\n Error! You need to make sure MAFFT is installed and included in your PATH before you can run this program...\n\n"; }
+
+## Find the references
+my $ref_dir = scalar reverse(abs_path($0)); $ref_dir =~ s/.*?\///; $ref_dir = scalar reverse ($ref_dir) . "/../references/";
+
+if ($ref == 3) {
+    $ref = $ref_dir . "03_references.fasta";
+}
+elsif ($ref == 16) {
+    $ref = $ref_dir . "16_references.fasta";
+}
+else { die "\n Error: Valid argument for --ref is 3 or 16. Not: $ref\n"; }
 
 ## Check that the input is peptide and NOT nucleotide
 check_molecule($infile);
@@ -145,8 +162,12 @@ foreach my $header (@Order) {
     open(TMP,">$working_dir/query_and_ref_tmp.fa") || die "Can't open the temporary FSA: $working_dir/query_and_ref_tmp.fa\n\n";
     print TMP $References . ">" . $header . "\n" . $sequence . "\n";
     close(TMP);
-    # print `mafft --retree 2 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`; ## Default MAFFT run, not local or global
-    print `mafft --localpair  --maxiterate 16 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
+    if ($fast) {
+	print `mafft --retree 2 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
+    }
+    else {
+	print `mafft --localpair  --maxiterate 16 --inputorder $working_dir/query_and_ref_tmp.fa > $working_dir/aln.fa 2> $working_dir/std.err`;
+    }
     flaten_fasta("$working_dir/aln.fa", "$working_dir/aln.flt.fa");
     my @results = parse_762("$working_dir/aln.flt.fa", $nrefs);
     print OUT join ("\t", @results) . "\n";
