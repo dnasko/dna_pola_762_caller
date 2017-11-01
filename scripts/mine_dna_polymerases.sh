@@ -107,9 +107,9 @@ status=$?
 echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 
 echo -n "# Pulling out PolA's with a valid 762 call .........." | tee -a ${LOG}
-clean_up_sequences.pl -i "${OUT}_candidate_pola.fasta" \
-		      -7 "${OUT}.762" \
-		      -o "${OUT}"
+extract_valid_polas.pl -i "${OUT}_candidate_pola.fasta" \
+		       -7 "${OUT}.762" \
+		       -o "${OUT}"
 echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 
 exit $status

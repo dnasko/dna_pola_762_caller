@@ -154,7 +154,7 @@ while( my $seq = $seq_in->next_seq() ) {
 	    print OUT ">" . $header . "\n" . $seq->seq . "\n";
 	}
     }
-    else { die "\n Cannot find $header in the trim file! Make sure 762_caller was run!\n\n"; }    
+    # else { die "\n Cannot find $header in the trim file! Make sure 762_caller was run!\n\n"; }    
 }
 close(OUT);
 
