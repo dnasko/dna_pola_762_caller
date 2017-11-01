@@ -40,7 +40,7 @@ The 762_caller will output a 6 column tab-delimmited text file with one row of r
 Post-processing
 ---------------
 
-Once you have your output from the 762_caller you can use clean_up_sequences.pl in the [scripts directory](https://github.com/dnasko/dna_pola_762_caller/tree/master/scripts) to perform **one or both** of the following functions:
+Once you have your output from the 762_caller you can use extract_valid_polas.pl in the [scripts directory](https://github.com/dnasko/dna_pola_762_caller/tree/master/scripts) to extract sequences with a valid 762 position and perform **one or both** of the following functions:
 
 1. Trim your sequences so that only the region of interest remains (e.g. 547 -> 926, or 547 -> 850).
 2. Remove all sequences that do not completely span (end-to-end) the region of interest.

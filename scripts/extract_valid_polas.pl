@@ -1,30 +1,27 @@
 #!/usr/bin/perl -w
 
-# MANUAL FOR clean_up_sequences.pl
+# MANUAL FOR extract_valid_pols.pl
 
 =pod
 
 =head1 NAME
 
-clean_up_sequences.pl -- Given the out file from 762_caller, will filter or trim PolAs
+extract_valid_pols.pl -- Given the out file from 762_caller, will filter or trim PolAs
 
 =head1 SYNOPSIS
 
- clean_up_sequences.pl --in=/Path/to/infile.fasta --762=/Path/to/762_caller_output_file.txt --out=/Path/to/output_clean.fasta --only_complete --trim
+ extract_valid_pols.pl --in=/Path/to/infile.fasta --762=/Path/to/762_caller_output_file.txt --out=/Path/to/output_clean.fasta [--only_complete] [--trim]
                      [--help] [--manual]
 
 =head1 DESCRIPTION
 
  Given the output file from 762_caller and the FASTA of DNA polymerase A's
- this script is capable of performing one or both of the following functions:
+ this script will extract sequences with a valid 762 position (F,L, or Y),
+ also it's capable of performing one or both of the following functions:
     1.) Filter out sequences that are not complete (--only_complete)
       AND / OR
     2.) Trim the sequences so that only the region of interest remains (e.g. 542-926)
 
- Note, the script will fail if NEITHER of these are passed. I mean, think about
- it... If you don't want to trim, and you don't want to filter out sequences
- that don't span the region of interest then you don't need this. Right ?
- 
 =head1 OPTIONS
 
 =over 3
@@ -112,7 +109,6 @@ pod2usage( {-exitval => 0, -verbose => 2, -output => \*STDERR} )  if ($help);
 pod2usage( -msg  => "\n\n ERROR!  Required argument --in not found.\n\n", -exitval => 2, -verbose => 1)  if (! $infile );
 pod2usage( -msg  => "\n\n ERROR!  Required argument --out not found.\n\n", -exitval => 2, -verbose => 1)  if (! $outfile );
 pod2usage( -msg  => "\n\n ERROR!  Required argument --762 not found.\n\n", -exitval => 2, -verbose => 1)  if (! $infile762);
-pod2usage( -msg  => "\n\n ERROR!  You need to tell me what to do. You did not use --only_complete or --trim. Pick one (or both) of these functions and I will get to work.\n\n", -exitval => 2, -verbose => 1)  if (! $only_complete && ! $trim);
 
 my %Coords;
 my $l=0;
@@ -121,9 +117,11 @@ while(<IN>) {
     chomp;
     if ($l>0) { ## If not on the first line
 	my @a = split(/\t/, $_);
-	$Coords{$a[0]}{"start"} = $a[3];
-	$Coords{$a[0]}{"stop"}  = $a[4];
-	$Coords{$a[0]}{"complete"} = $a[5];
+	if ($a[1] =~ m/F|L|Y/) {
+	    $Coords{$a[0]}{"start"} = $a[3];
+	    $Coords{$a[0]}{"stop"}  = $a[4];
+	    $Coords{$a[0]}{"complete"} = $a[5];
+	}
     }
     $l++;
 }
@@ -138,7 +136,7 @@ while( my $seq = $seq_in->next_seq() ) {
     my $header = $seq->id;
     my $sequence = $seq->seq;
     if (exists $Coords{$header}) {
-	unless ($only_complete && $Coords{$header}{"complete"} eq "no") { ## this is the magic of the --only_complete flag
+	if ($only_complete && $Coords{$header}{"complete"} eq "yes") { ## this is the magic of the --only_complete flag
 	    my $left = $Coords{$header}{"start"};
 	    my $right = $Coords{$header}{"stop"} - $Coords{$header}{"start"};
 	    my $trim_seq = substr $sequence, $left, $right;
@@ -151,6 +149,9 @@ while( my $seq = $seq_in->next_seq() ) {
 	    else {
 		print OUT ">" . $header . "\n" . $seq->seq . "\n";
 	    }
+	}
+	else {
+	    print OUT ">" . $header . "\n" . $seq->seq . "\n";
 	}
     }
     else { die "\n Cannot find $header in the trim file! Make sure 762_caller was run!\n\n"; }    

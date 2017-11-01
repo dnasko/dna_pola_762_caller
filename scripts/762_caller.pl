@@ -10,7 +10,7 @@
 
 =head1 SYNOPSIS
 
- 762_caller.pl --in=/Path/to/infile.fasta --ref=/Path/to/references.fasta --out=/Path/to/output.txt [--fast]
+ 762_caller.pl --in=/Path/to/infile.fasta --ref=3 --out=/Path/to/output.txt [--fast]
                      [--debug] [--help] [--manual]
 
 =head1 DESCRIPTION
@@ -28,7 +28,7 @@ Input file in *peptide* FASTA format. (Required)
 
 =item B<-r, --ref>=FILENAME
 
-Input set of peptide reference sequecnes. Use the 3_references.fasta file located in the references directory. (Required)
+How many references do you want to align with? Options are '3' or '16'. (Required)
 
 =item B<-o, --out>=FILENAME
 
@@ -56,8 +56,6 @@ Displays full manual.  (Optional)
 
 Requires the following Perl libraries.
 
-Bio::SeqIO
-
 =head1 AUTHOR
 
 Written by Daniel Nasko, 
@@ -69,7 +67,7 @@ Report bugs to dnasko@udel.edu
 
 =head1 COPYRIGHT
 
-Copyright 2016 Daniel Nasko.  
+Copyright 2017 Daniel Nasko.  
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.  
 This is free software: you are free to change and redistribute it.  
 There is NO WARRANTY, to the extent permitted by law.  

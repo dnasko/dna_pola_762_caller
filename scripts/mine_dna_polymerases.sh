@@ -18,7 +18,7 @@ THREADS=1
 
 ## ========================
 ## Process the input parameters
-if [ $# -gt 5 ] || [ $# -lt 4 ]
+if [ $# -gt 4 ] || [ $# -lt 3 ]
 then
     usage
 fi
@@ -106,6 +106,10 @@ echo -n "# Running the 762 caller ............................" | tee -a ${LOG}
 status=$?
 echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 
-
+echo -n "# Pulling out PolA's with a valid 762 call .........." | tee -a ${LOG}
+clean_up_sequences.pl -i "${OUT}_candidate_pola.fasta" \
+		      -7 "${OUT}.762" \
+		      -o "${OUT}"
+echo -n " DONE "  | tee -a ${LOG}; date '+%H:%M:%S %Y-%m-%d' |tee -a ${LOG}
 
 exit $status
